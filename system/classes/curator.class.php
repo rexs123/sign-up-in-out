@@ -1,5 +1,4 @@
 <?php
-
 class Curator {
 
   //uuid generator
