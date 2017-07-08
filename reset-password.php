@@ -43,25 +43,11 @@ if(isset($_POST['submit'])){
 		$stmt->bind_param("ss", $hashedpassword, $_GET['key']);
 		$stmt->execute();
 		//redirect to index page
-		header('Location: /sign-in/a/resetAccount');
+		header('Location: /sign-in?action=resetAccount');
 		exit;
 	}
 }
 ?>
-<div id="sub-header">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<h1>Password Reset</h1>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="container">
-	<div class="row">
-		<? if(!$role->premium()){ echo $ccAdvert->ccAdvert("top", null); } ?>
-	</div>
-</div>
 <div id="reset-password">
 	<div class="container">
 		<h2 class="header">Reset Password</h2>

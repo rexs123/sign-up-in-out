@@ -1,6 +1,6 @@
 <?php
 include("./system/config.php");
-  $user->logout();
+  $user->signout();
   header('Location: ./');
   exit;
 ?>

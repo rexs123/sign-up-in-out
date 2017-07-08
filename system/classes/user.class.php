@@ -11,7 +11,7 @@ class User extends Password{
     }
 
   //get the hash
-	private function get_user_hash($username){
+	private function gethash($username){
 		$stmt = $this->_db->prepare('SELECT password FROM users WHERE username = ? AND active="Yes"');
     $stmt->bind_param("s", $username);
 		$stmt->execute();
@@ -39,9 +39,9 @@ class User extends Password{
   }
 
   //login
-	public function login($username, $password){
+	public function signin($username, $password){
 
-		$hashed = $this->get_user_hash($username);
+		$hashed = $this->gethash($username);
 
 		if($this->password_verify($password, $hashed) == 1){
 		    $_SESSION['loggedin'] = true;
@@ -56,12 +56,12 @@ class User extends Password{
 	}
 
   //logout
-	public function logout(){
+	public function signout(){
 		session_destroy();
 	}
 
   //is logged in
-	public function is_logged_in(){
+	public function signedin(){
 		if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
 			return true;
 		}

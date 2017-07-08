@@ -8,7 +8,7 @@ include("./system/config.php");
 include("./layout/header.php");
 include("./layout/navbar.php");
 //if logged in redirect to users page
-if($user->is_logged_in()){
+if($user->signedin()){
   header('Location: '. BASEURL .'./clientarea');
 }
 if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -17,7 +17,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $google_url = "https://www.google.com/recaptcha/api/siteverify";
     $ip = $_SERVER['REMOTE_ADDR'];
     $url = $google_url."?secret=".GSKEY."&response=".$recaptcha."&remoteip=".$ip;
-    $res = getCurlData($url);
+    $res = $curator->curl($url);
     $res = json_decode($res, true);
     if($res['success']){
       if(isset($_POST['submit'])){
@@ -63,10 +63,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         if(!isset($error)){
           $hashedpassword = $user->password_hash($_POST['password'], PASSWORD_BCRYPT);
           $activasion = md5(uniqid(rand(),true));
-          $discord = md5(uniqid(rand(),true));
           try {
-            $stmt = $conn->prepare('INSERT INTO users (username, password, email, active, ip, discord) VALUES (?, ?, ?, ?, ?, ?)');
-            $stmt->bind_param("ssssss", $_POST['username'], $hashedpassword, $_POST['email'], $activasion, $ip, $discord);
+            $stmt = $conn->prepare('INSERT INTO users (username, password, email, active, ip) VALUES (?, ?, ?, ?, ?)');
+            $stmt->bind_param("sssss", $_POST['username'], $hashedpassword, $_POST['email'], $activasion, $ip);
             $stmt->execute();
             $stmt->close();
             $id = $conn->insert_id;
@@ -75,17 +74,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = str_replace('%activasion%', $activasion, $message);
             $message = str_replace('%baseurl%', BASEURL, $message);
             $message = str_replace('%userid%', $id, $message);
+
             $mail = new PHPMailer();
+
+            if($config['smtp']) {
+              $mail->isSMTP();                          // Set mailer to use SMTP
+              $mail->Host = MAILHOST;                   // Specify main and backup SMTP servers
+              $mail->SMTPAuth = MAILAUTH;               // Enable SMTP authentication
+              $mail->Username = MAILUSER;               // SMTP username
+              $mail->Password = MAILPASS;               // SMTP password
+              $mail->SMTPSecure = MAILENC;              // Enable TLS encryption, `ssl` also accepted
+              $mail->Port = MAILPORT;                   // TCP port to connect to
+            }
+
             $mail->SetFrom(SITEEMAIL, MAILNAME);
             $mail->AddAddress($to);
-            $mail->Subject = "Sign-up activation for GetBukkit.org";
+            $mail->Subject = "Approve this sign up";
             $mail->MsgHTML($message);
             $mail->IsHTML(true);
             if(!$mail->Send()) {
              echo "Mailer Error: " . $mail->ErrorInfo;
             }
 
-            header('Location: ./sign-in/a/joined');
+            header('Location: ./sign-in?action=joined');
             exit;
           } catch(Exception $e) {
             $error[] = "Oh no, something is broken :(!";
@@ -110,20 +121,6 @@ if(isset($_GET['action']) && $_GET['action'] == 'joined'){
 }
 ?>
 </div></div></div>
-<div id="sub-header">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<h1>Signing up to GetBukkit</h1>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="container">
-	<div class="row">
-		<? if(!$role->premium()){ echo $ccAdvert->ccAdvert("top", null); } ?>
-	</div>
-</div>
 <div id="sign-up">
   <div class="container">
     <div class="row">

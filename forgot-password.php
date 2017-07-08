@@ -44,35 +44,32 @@ if(isset($_POST['submit'])){
 		$message = str_replace('%token%', $token, $message);
 		$message = str_replace('%baseurl%', BASEURL, $message);
 		$mail = new PHPMailer();
+
+		if($config['smtp']) {
+			$mail->isSMTP();                          // Set mailer to use SMTP
+			$mail->Host = MAILHOST;                   // Specify main and backup SMTP servers
+			$mail->SMTPAuth = MAILAUTH;               // Enable SMTP authentication
+			$mail->Username = MAILUSER;               // SMTP username
+			$mail->Password = MAILPASS;               // SMTP password
+			$mail->SMTPSecure = MAILENC;              // Enable TLS encryption, `ssl` also accepted
+			$mail->Port = MAILPORT;                   // TCP port to connect to
+		}
+
 		$mail->SetFrom(SITEEMAIL, MAILNAME);
 		$mail->AddAddress($to);
-		$mail->Subject = "GetBukkit v2 Password Forgtten";
+		$mail->Subject = "Password Reset";
 		$mail->MsgHTML($message);
 		$mail->IsHTML(true);
 		if(!$mail->Send()) {
 		 echo "Mailer Error: " . $mail->ErrorInfo;
 		}
 		//redirect to index page
-		header('Location: sign-in/a/reset');
+		header('Location: sign-in?action=reset');
 		exit;
 	}
 
 }
 ?>
-<div id="sub-header">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<h1>Forgot Password</h1>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="container">
-	<div class="row">
-		<? if(!$role->premium()){ echo $ccAdvert->ccAdvert("top", null); } ?>
-	</div>
-</div>
 <div id="forgot-password">
 	<div class="container">
 		<h2 class="header">Forgotten Password</h2>

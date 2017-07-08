@@ -8,14 +8,14 @@ include("./system/config.php");
 include("./layout/header.php");
 include("./layout/navbar.php");
 //check if already logged in move to home page
-if( $user->is_logged_in() ){ header('Location: ./clientarea'); }
+if( $user->signedin() ){ header('Location: ./clientarea'); }
 //process login form if submitted
 $returned = $_POST['return'];
 if(isset($_POST['submit'])){
 	$username = $_POST['username'];
 	$password = $_POST['password'];
 
-	if($user->login($username, $password, $remember)){
+	if($user->signin($username, $password, $remember)){
 		$_SESSION['username'] = $username;
 		if(!empty($returned)) {
 			header("Location: /".$_POST["return"]);
@@ -39,13 +39,13 @@ if(isset($_GET['action'])) {
 			$msg = '<div class="alert alert-success" role="alert">Your account is now active. You may now log in.</div>';
 			break;
 		case 'reset':
-			$msg = '<div class="alert alert-success" role="alert">Please check your inbox for a reset link.</div>';
+			$msg = '<div class="alert alert-warning" role="alert">Please check your inbox for a reset link.</div>';
 			break;
 		case 'resetAccount':
 			$msg = '<div class="alert alert-success" role="alert">Password changed. You may now login.</div>';
 			break;
 		case 'joined':
-			$msg = "<div class='alert alert-success'>Registration successful. Please check your email to activate your account.</div>";
+			$msg = "<div class='alert alert-warning'>Registration successful. Please check your email to activate your account.</div>";
 			break;
 		case 'failed':
 			$msg = "<div class='alert alert-danger'>Registration failed! Please contact us.</div>";
@@ -53,20 +53,6 @@ if(isset($_GET['action'])) {
   }
 }
 ?>
-<div id="sub-header">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<h1>Signing in to GetBukkit</h1>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="container">
-	<div class="row">
-		<? if(!$role->premium()){ echo $ccAdvert->ccAdvert("top", null); } ?>
-	</div>
-</div>
 <div id="sign-in">
 	<div class="container">
 		<div class="row">
